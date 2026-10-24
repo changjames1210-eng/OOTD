@@ -24,7 +24,7 @@ function renderCloset() {
   const shown = activeFilter === 'All' ? closet : closet.filter(i => i.type === activeFilter);
   document.getElementById('itemsGrid').innerHTML = shown.length ? shown.map(item => {
     const index = closet.indexOf(item);
-    return `<article class="closet-item"><button class="remove" aria-label="Remove ${item.name}" data-index="${index}">×</button>${garment(item)}<div class="item-type">${item.type}</div><div class="item-name">${item.name}</div><div class="item-details">${item.color}${item.size ? ' · ' + item.size : ''}</div></article>`;
+    return `<article class="closet-item" id="closet-item-${index}"><button class="remove" aria-label="Remove ${item.name}" data-index="${index}">×</button>${garment(item)}<div class="item-type">${item.type}</div><div class="item-name">${item.name}</div><div class="item-details">${item.color}${item.size ? ' · ' + item.size : ''}</div></article>`;
   }).join('') : '<p class="empty">Nothing here yet — add a piece to get started.</p>';
   document.getElementById('closetCount').textContent = closet.length;
 }
@@ -49,7 +49,7 @@ function showOutfit() {
     ? `<div class="dress-form${dress ? ' dress-look' : ''}" aria-label="A dress-form mannequin wearing your generated outfit"><div class="mannequin-finial"></div><div class="mannequin-neck"></div>${dressFormBody}<div class="mannequin-pole"></div><div class="mannequin-base"></div></div>`
     : `<div class="fake-person" aria-label="A fictional mannequin wearing your generated outfit"><div class="fake-head"></div><div class="fake-neck"></div>${outfitBody}<div class="fake-shoes"><i></i><b></b></div></div>`;
   const model = `<article class="model-card" style="--top-color:${topColor};--bottom-color:${bottomColor};--dress-color:${dress ? getColor(dress.color) : '#d7b094'};--shoe-color:${shoes ? getColor(shoes.color) : '#eee5d1'}"><span class="model-label">Your OOTD</span>${modelFigure}<span class="model-caption">${usesDressForm ? 'Styled on your dress form' : 'Your fictional style model'}</span></article>`;
-  display.innerHTML = selected.length ? model + selected.map(item => `<article class="outfit-piece"><div><div class="piece-icon">${icons[item.type]}</div><div class="piece-type">${item.type}</div></div><div><div class="piece-name">${item.name}</div><div class="piece-meta">${item.color}${item.size ? ' · ' + item.size : ''}</div></div></article>`).join('') : '<p>Add a few closet pieces first, then we can style you.</p>';
+  display.innerHTML = selected.length ? model + selected.map(item => `<article class="outfit-piece"><div><div class="piece-icon" aria-hidden="true">${garment(item)}</div><div class="piece-type">${item.type}</div></div><div><div class="piece-name">${item.name}</div><div class="piece-meta">${item.color}${item.size ? ' · ' + item.size : ''}</div><button class="find-item" type="button" data-index="${closet.indexOf(item)}">Find in closet <span aria-hidden="true">↓</span></button></div></article>`).join('') : '<p>Add a few closet pieces first, then we can style you.</p>';
   const occasion = document.getElementById('occasion').value.toLowerCase();
   document.getElementById('resultSummary').textContent = `A ${document.getElementById('vibe').value.toLowerCase()} look for ${occasion}.`;
   document.getElementById('result').classList.remove('hidden');
@@ -58,6 +58,18 @@ function showOutfit() {
 document.querySelectorAll('.pill').forEach(button => button.addEventListener('click', () => { document.querySelectorAll('.pill').forEach(b => b.classList.remove('selected')); button.classList.add('selected'); document.getElementById('occasion').value = button.dataset.occasion; }));
 document.getElementById('outfitForm').addEventListener('submit', event => { event.preventDefault(); showOutfit(); });
 document.getElementById('reroll').addEventListener('click', showOutfit);
+document.getElementById('outfitDisplay').addEventListener('click', event => {
+  const button = event.target.closest('.find-item');
+  if (!button) return;
+  activeFilter = 'All';
+  document.querySelectorAll('.filter').forEach(filter => filter.classList.toggle('active', filter.dataset.filter === 'All'));
+  renderCloset();
+  const item = document.getElementById(`closet-item-${button.dataset.index}`);
+  if (!item) return;
+  item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  item.classList.add('located');
+  window.setTimeout(() => item.classList.remove('located'), 1800);
+});
 document.getElementById('addItemForm').addEventListener('submit', event => {
   event.preventDefault();
   const name = document.getElementById('itemName');
