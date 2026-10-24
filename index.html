@@ -19,7 +19,7 @@
         <a class="active" href="#generator">Pick an outfit</a>
         <a href="#closet">My closet <span class="nav-count" id="closetCount">6</span></a>
       </nav>
-      <button class="profile-button" aria-label="Open profile">CM</button>
+      <div class="account-menu"><span class="account-name" id="accountName">My closet</span><button class="profile-button" id="logoutButton" aria-label="Sign out" title="Sign out">ME</button></div>
     </header>
 
     <main id="top">
@@ -79,11 +79,11 @@
           <form id="addItemForm" class="add-item-form">
             <h3>Add a piece</h3>
             <label>Item name<input id="itemName" required placeholder="e.g. Ribbed t-shirt" /></label>
-            <div class="small-fields"><label>Type<select id="itemType"><option>Top</option><option>Bottom</option><option>Shoes</option><option>Accessory</option><option>Layer</option></select></label><label>Color<input id="itemColor" required placeholder="e.g. Forest green" /></label></div>
+            <div class="small-fields"><label>Type<select id="itemType"><option>Top</option><option>Bottom</option><option>Dress</option><option>Shoes</option><option>Accessory</option><option>Layer</option></select></label><label>Color<input id="itemColor" required placeholder="e.g. Forest green" /><small class="color-hint">The item picture updates to this color.</small></label></div>
             <label>Size <input id="itemSize" placeholder="e.g. Medium" /></label>
             <button class="add-button" type="submit">Add to closet <span>+</span></button>
           </form>
-          <div class="closet-items"><div class="closet-toolbar"><h3>Everything you own</h3><div class="filters" id="filters"><button class="filter active" data-filter="All">All</button><button class="filter" data-filter="Top">Tops</button><button class="filter" data-filter="Bottom">Bottoms</button><button class="filter" data-filter="Shoes">Shoes</button></div></div><div id="itemsGrid" class="items-grid"></div></div>
+          <div class="closet-items"><div class="closet-toolbar"><h3>Everything you own</h3><div class="filters" id="filters"><button class="filter active" data-filter="All">All</button><button class="filter" data-filter="Top">Tops</button><button class="filter" data-filter="Bottom">Bottoms</button><button class="filter" data-filter="Dress">Dresses</button><button class="filter" data-filter="Shoes">Shoes</button></div></div><div id="itemsGrid" class="items-grid"></div></div>
         </div>
       </section>
     </main>

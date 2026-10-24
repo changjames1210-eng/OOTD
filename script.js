@@ -6,28 +6,50 @@ const initialItems = [
   { name: 'Canvas sneakers', type: 'Shoes', color: 'Cream', size: '8' },
   { name: 'Gold watch', type: 'Accessory', color: 'Gold', size: 'One size' }
 ];
-let closet = JSON.parse(localStorage.getItem('ootd-closet') || 'null') || initialItems;
+const account = JSON.parse(localStorage.getItem('ootd-current-user') || 'null');
+if (!account) window.location.replace('login.html');
+const closetKey = `ootd-closet-${account?.id || 'guest'}`;
+let closet = JSON.parse(localStorage.getItem(closetKey) || 'null') || initialItems;
 let activeFilter = 'All';
-const icons = { Top: '♧', Bottom: '▰', Shoes: '⌁', Accessory: '◌', Layer: '◇' };
-const colorMap = { sagegreen:'#96a88b',cherryred:'#ca4134',indigo:'#41577e',black:'#292a2a',cream:'#eadbb9',gold:'#d4a930',forestgreen:'#2e6545',white:'#f9f8f2',blue:'#557ba7',brown:'#765647',grey:'#92908b',gray:'#92908b',red:'#bd4034',green:'#548051' };
+const icons = { Top: '👕', Bottom: '👖', Dress: '👗', Shoes: '👟', Accessory: '⌚', Layer: '🧥' };
+const colorMap = { sagegreen:'#96a88b',cherryred:'#ca4134',indigo:'#41577e',black:'#292a2a',cream:'#eadbb9',gold:'#d4a930',forestgreen:'#2e6545',white:'#f9f8f2',blue:'#557ba7',navy:'#233a5d',skyblue:'#83bce0',brown:'#765647',beige:'#d8c5a5',tan:'#bd9164',grey:'#92908b',gray:'#92908b',red:'#bd4034',pink:'#e997a5',purple:'#8566a9',orange:'#ee7a35',yellow:'#e9c444',green:'#548051',teal:'#3c8e8d',olive:'#778241' };
 
 function getColor(color) { const key = color.toLowerCase().replace(/[^a-z]/g, ''); return colorMap[key] || '#cabca8'; }
-function save() { localStorage.setItem('ootd-closet', JSON.stringify(closet)); }
+function garment(item) {
+  const className = item.type.toLowerCase().replace(/[^a-z]/g, '');
+  return `<div class="garment garment-${className}" style="--garment-color:${getColor(item.color)}" aria-hidden="true"><i></i><b></b></div>`;
+}
+function save() { localStorage.setItem(closetKey, JSON.stringify(closet)); }
 function renderCloset() {
   const shown = activeFilter === 'All' ? closet : closet.filter(i => i.type === activeFilter);
   document.getElementById('itemsGrid').innerHTML = shown.length ? shown.map(item => {
     const index = closet.indexOf(item);
-    return `<article class="closet-item"><button class="remove" aria-label="Remove ${item.name}" data-index="${index}">×</button><div class="item-swatch" style="background:${getColor(item.color)}"></div><div class="item-type">${item.type}</div><div class="item-name">${item.name}</div><div class="item-details">${item.color}${item.size ? ' · ' + item.size : ''}</div></article>`;
+    return `<article class="closet-item"><button class="remove" aria-label="Remove ${item.name}" data-index="${index}">×</button>${garment(item)}<div class="item-type">${item.type}</div><div class="item-name">${item.name}</div><div class="item-details">${item.color}${item.size ? ' · ' + item.size : ''}</div></article>`;
   }).join('') : '<p class="empty">Nothing here yet — add a piece to get started.</p>';
   document.getElementById('closetCount').textContent = closet.length;
 }
 function pick(type) { const choices = closet.filter(item => item.type === type); return choices[Math.floor(Math.random() * choices.length)]; }
 function showOutfit() {
-  const pieces = ['Top', 'Bottom', 'Shoes'];
+  const canWearDress = closet.some(item => item.type === 'Dress');
+  const wearsDress = canWearDress && (Math.random() < .45 || !closet.some(item => item.type === 'Top'));
+  const pieces = wearsDress ? ['Dress', 'Shoes'] : ['Top', 'Bottom', 'Shoes'];
   if (document.getElementById('accessories').checked && closet.some(i => i.type === 'Accessory')) pieces.push('Accessory');
   const selected = pieces.map(pick).filter(Boolean);
   const display = document.getElementById('outfitDisplay');
-  display.innerHTML = selected.length ? selected.map(item => `<article class="outfit-piece"><div><div class="piece-icon">${icons[item.type]}</div><div class="piece-type">${item.type}</div></div><div><div class="piece-name">${item.name}</div><div class="piece-meta">${item.color}${item.size ? ' · ' + item.size : ''}</div></div></article>`).join('') : '<p>Add a few closet pieces first, then we can style you.</p>';
+  const top = selected.find(item => item.type === 'Top');
+  const bottom = selected.find(item => item.type === 'Bottom');
+  const dress = selected.find(item => item.type === 'Dress');
+  const shoes = selected.find(item => item.type === 'Shoes');
+  const outfitBody = dress ? '<div class="fake-dress"></div>' : '<div class="fake-top"><i></i><b></b></div><div class="fake-bottom"></div>';
+  const usesDressForm = account?.sex === 'Female' || Boolean(dress);
+  const topColor = dress ? getColor(dress.color) : (top ? getColor(top.color) : '#d7b094');
+  const bottomColor = dress ? getColor(dress.color) : (bottom ? getColor(bottom.color) : '#53647d');
+  const dressFormBody = dress ? '<div class="mannequin-torso"><div class="mannequin-dress"></div></div>' : '<div class="mannequin-torso"><div class="mannequin-top"></div><div class="mannequin-bottom"></div></div>';
+  const modelFigure = usesDressForm
+    ? `<div class="dress-form${dress ? ' dress-look' : ''}" aria-label="A dress-form mannequin wearing your generated outfit"><div class="mannequin-finial"></div><div class="mannequin-neck"></div>${dressFormBody}<div class="mannequin-pole"></div><div class="mannequin-base"></div></div>`
+    : `<div class="fake-person" aria-label="A fictional mannequin wearing your generated outfit"><div class="fake-head"></div><div class="fake-neck"></div>${outfitBody}<div class="fake-shoes"><i></i><b></b></div></div>`;
+  const model = `<article class="model-card" style="--top-color:${topColor};--bottom-color:${bottomColor};--dress-color:${dress ? getColor(dress.color) : '#d7b094'};--shoe-color:${shoes ? getColor(shoes.color) : '#eee5d1'}"><span class="model-label">Your OOTD</span>${modelFigure}<span class="model-caption">${usesDressForm ? 'Styled on your dress form' : 'Your fictional style model'}</span></article>`;
+  display.innerHTML = selected.length ? model + selected.map(item => `<article class="outfit-piece"><div><div class="piece-icon">${icons[item.type]}</div><div class="piece-type">${item.type}</div></div><div><div class="piece-name">${item.name}</div><div class="piece-meta">${item.color}${item.size ? ' · ' + item.size : ''}</div></div></article>`).join('') : '<p>Add a few closet pieces first, then we can style you.</p>';
   const occasion = document.getElementById('occasion').value.toLowerCase();
   document.getElementById('resultSummary').textContent = `A ${document.getElementById('vibe').value.toLowerCase()} look for ${occasion}.`;
   document.getElementById('result').classList.remove('hidden');
@@ -50,4 +72,7 @@ document.getElementById('addItemForm').addEventListener('submit', event => {
 });
 document.getElementById('itemsGrid').addEventListener('click', event => { const button = event.target.closest('.remove'); if (!button) return; closet.splice(Number(button.dataset.index), 1); save(); renderCloset(); });
 document.querySelectorAll('.filter').forEach(button => button.addEventListener('click', () => { activeFilter = button.dataset.filter; document.querySelectorAll('.filter').forEach(b => b.classList.toggle('active', b === button)); renderCloset(); }));
+document.getElementById('accountName').textContent = account ? `${account.name}'s closet` : 'My closet';
+document.getElementById('logoutButton').textContent = account ? account.name.slice(0, 2).toUpperCase() : 'ME';
+document.getElementById('logoutButton').addEventListener('click', () => { localStorage.removeItem('ootd-current-user'); window.location.href = 'login.html'; });
 renderCloset();
