@@ -79,11 +79,11 @@
           <form id="addItemForm" class="add-item-form">
             <h3>Add a piece</h3>
             <label>Item name<input id="itemName" required placeholder="e.g. Ribbed t-shirt" /></label>
-            <div class="small-fields"><label>Type<select id="itemType"><option>Top</option><option>Bottom</option><option>Dress</option><option>Shoes</option><option>Accessory</option><option>Layer</option></select></label><label>Color<input id="itemColor" required placeholder="e.g. Forest green" /><small class="color-hint">The item picture updates to this color.</small></label></div>
+            <div class="small-fields"><label>Type<select id="itemType"><option>Top</option><option>Bottom</option><option>Dress</option><option>Shoes</option><option>Hat</option><option>Watch</option><option>Accessory</option><option>Layer</option></select></label><label>Color<input id="itemColor" required placeholder="e.g. Forest green" /><small class="color-hint">The item picture updates to this color.</small></label></div>
             <label>Size <input id="itemSize" placeholder="e.g. Medium" /></label>
             <button class="add-button" type="submit">Add to closet <span>+</span></button>
           </form>
-          <div class="closet-items"><div class="closet-toolbar"><h3>Everything you own</h3><div class="filters" id="filters"><button class="filter active" data-filter="All">All</button><button class="filter" data-filter="Top">Tops</button><button class="filter" data-filter="Bottom">Bottoms</button><button class="filter" data-filter="Dress">Dresses</button><button class="filter" data-filter="Shoes">Shoes</button></div></div><div id="itemsGrid" class="items-grid"></div></div>
+          <div class="closet-items" id="closetScene"><div class="closet-toolbar"><h3>Everything you own</h3><div class="filters" id="filters"><button class="filter active" data-filter="All">All</button><button class="filter" data-filter="Top">Tops</button><button class="filter" data-filter="Bottom">Bottoms</button><button class="filter" data-filter="Dress">Dresses</button><button class="filter" data-filter="Shoes">Shoes</button><button class="filter" data-filter="Hat">Hats</button><button class="filter" data-filter="Watch">Watches</button></div></div><p class="closet-tip">Choose a piece and pull it out of the closet.</p><div class="wardrobe"><div class="wardrobe-rail" aria-hidden="true"></div><div id="itemsGrid" class="items-grid"></div></div></div>
         </div>
       </section>
     </main>

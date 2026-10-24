@@ -4,7 +4,7 @@ const initialItems = [
   { name: 'Straight-leg denim', type: 'Bottom', color: 'Indigo', size: '30' },
   { name: 'Pleated trousers', type: 'Bottom', color: 'Black', size: 'M' },
   { name: 'Canvas sneakers', type: 'Shoes', color: 'Cream', size: '8' },
-  { name: 'Gold watch', type: 'Accessory', color: 'Gold', size: 'One size' }
+  { name: 'Gold watch', type: 'Watch', color: 'Gold', size: 'One size' }
 ];
 const account = JSON.parse(localStorage.getItem('ootd-current-user') || 'null');
 if (!account) window.location.replace('login.html');
@@ -24,7 +24,7 @@ function renderCloset() {
   const shown = activeFilter === 'All' ? closet : closet.filter(i => i.type === activeFilter);
   document.getElementById('itemsGrid').innerHTML = shown.length ? shown.map(item => {
     const index = closet.indexOf(item);
-    return `<article class="closet-item" id="closet-item-${index}"><button class="remove" aria-label="Remove ${item.name}" data-index="${index}">×</button>${garment(item)}<div class="item-type">${item.type}</div><div class="item-name">${item.name}</div><div class="item-details">${item.color}${item.size ? ' · ' + item.size : ''}</div></article>`;
+    return `<article class="closet-item" id="closet-item-${index}" data-type="${item.type}"><span class="hanger" aria-hidden="true"></span><button class="remove" aria-label="Remove ${item.name}" data-index="${index}">×</button>${garment(item)}<div class="item-type">${item.type}</div><div class="item-name">${item.name}</div><div class="item-details">${item.color}${item.size ? ' · ' + item.size : ''}</div><button class="pull-item" type="button" aria-expanded="false">Pull out <span aria-hidden="true">↗</span></button></article>`;
   }).join('') : '<p class="empty">Nothing here yet — add a piece to get started.</p>';
   document.getElementById('closetCount').textContent = closet.length;
 }
@@ -33,7 +33,10 @@ function showOutfit() {
   const canWearDress = closet.some(item => item.type === 'Dress');
   const wearsDress = canWearDress && (Math.random() < .45 || !closet.some(item => item.type === 'Top'));
   const pieces = wearsDress ? ['Dress', 'Shoes'] : ['Top', 'Bottom', 'Shoes'];
-  if (document.getElementById('accessories').checked && closet.some(i => i.type === 'Accessory')) pieces.push('Accessory');
+  if (document.getElementById('accessories').checked) {
+    const accessoryTypes = ['Hat', 'Watch', 'Accessory'].filter(type => closet.some(item => item.type === type));
+    if (accessoryTypes.length) pieces.push(accessoryTypes[Math.floor(Math.random() * accessoryTypes.length)]);
+  }
   const selected = pieces.map(pick).filter(Boolean);
   const display = document.getElementById('outfitDisplay');
   const top = selected.find(item => item.type === 'Top');
@@ -82,7 +85,21 @@ document.getElementById('addItemForm').addEventListener('submit', event => {
   event.target.reset();
   name.focus();
 });
-document.getElementById('itemsGrid').addEventListener('click', event => { const button = event.target.closest('.remove'); if (!button) return; closet.splice(Number(button.dataset.index), 1); save(); renderCloset(); });
+document.getElementById('itemsGrid').addEventListener('click', event => {
+  const removeButton = event.target.closest('.remove');
+  if (removeButton) {
+    closet.splice(Number(removeButton.dataset.index), 1);
+    save();
+    renderCloset();
+    return;
+  }
+  const card = event.target.closest('.closet-item');
+  if (!card) return;
+  const pullButton = card.querySelector('.pull-item');
+  const pulled = card.classList.toggle('pulled');
+  pullButton.setAttribute('aria-expanded', String(pulled));
+  pullButton.innerHTML = pulled ? 'Put back <span aria-hidden="true">↙</span>' : 'Pull out <span aria-hidden="true">↗</span>';
+});
 document.querySelectorAll('.filter').forEach(button => button.addEventListener('click', () => { activeFilter = button.dataset.filter; document.querySelectorAll('.filter').forEach(b => b.classList.toggle('active', b === button)); renderCloset(); }));
 document.getElementById('accountName').textContent = account ? `${account.name}'s closet` : 'My closet';
 document.getElementById('logoutButton').textContent = account ? account.name.slice(0, 2).toUpperCase() : 'ME';
