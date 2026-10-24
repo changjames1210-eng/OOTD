@@ -22,6 +22,11 @@ function garment(item) {
   return `<div class="garment garment-${className}" style="--garment-color:${getColor(item.color)}" aria-hidden="true"><i></i><b></b></div>`;
 }
 function save() { localStorage.setItem(closetKey, JSON.stringify(closet)); }
+function updateClosetMode(filter) {
+  const scene = document.getElementById('closetScene');
+  scene.classList.toggle('watch-drawer', filter === 'Watch');
+  scene.classList.toggle('hat-rack', filter === 'Hat');
+}
 function renderCloset() {
   const shown = activeFilter === 'All' ? closet : closet.filter(i => i.type === activeFilter);
   document.getElementById('itemsGrid').innerHTML = shown.length ? shown.map(item => {
@@ -68,6 +73,7 @@ document.getElementById('outfitDisplay').addEventListener('click', event => {
   if (!button) return;
   activeFilter = 'All';
   document.querySelectorAll('.filter').forEach(filter => filter.classList.toggle('active', filter.dataset.filter === 'All'));
+  updateClosetMode('All');
   renderCloset();
   const item = document.getElementById(`closet-item-${button.dataset.index}`);
   if (!item) return;
@@ -102,7 +108,7 @@ document.getElementById('itemsGrid').addEventListener('click', event => {
   pullButton.setAttribute('aria-expanded', String(pulled));
   pullButton.innerHTML = pulled ? 'Put back <span aria-hidden="true">↙</span>' : 'Pull out <span aria-hidden="true">↗</span>';
 });
-document.querySelectorAll('.filter').forEach(button => button.addEventListener('click', () => { activeFilter = button.dataset.filter; document.querySelectorAll('.filter').forEach(b => b.classList.toggle('active', b === button)); renderCloset(); }));
+document.querySelectorAll('.filter').forEach(button => button.addEventListener('click', () => { activeFilter = button.dataset.filter; document.querySelectorAll('.filter').forEach(b => b.classList.toggle('active', b === button)); updateClosetMode(activeFilter); renderCloset(); }));
 document.getElementById('accountName').textContent = account ? `${account.name}'s closet` : 'My closet';
 document.getElementById('logoutButton').textContent = account ? account.name.slice(0, 2).toUpperCase() : 'ME';
 document.getElementById('logoutButton').addEventListener('click', () => { localStorage.removeItem('ootd-current-user'); window.location.href = 'login.html'; });
