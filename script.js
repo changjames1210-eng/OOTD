@@ -10,6 +10,8 @@ const account = JSON.parse(localStorage.getItem('ootd-current-user') || 'null');
 if (!account) window.location.replace('login.html');
 const closetKey = `ootd-closet-${account?.id || 'guest'}`;
 let closet = JSON.parse(localStorage.getItem(closetKey) || 'null') || initialItems;
+closet = closet.map(item => item.type === 'Accessory' && /watch/i.test(item.name) ? { ...item, type: 'Watch' } : item);
+localStorage.setItem(closetKey, JSON.stringify(closet));
 let activeFilter = 'All';
 const icons = { Top: '👕', Bottom: '👖', Dress: '👗', Shoes: '👟', Accessory: '⌚', Layer: '🧥' };
 const colorMap = { sagegreen:'#96a88b',cherryred:'#ca4134',indigo:'#41577e',black:'#292a2a',cream:'#eadbb9',gold:'#d4a930',forestgreen:'#2e6545',white:'#f9f8f2',blue:'#557ba7',navy:'#233a5d',skyblue:'#83bce0',brown:'#765647',beige:'#d8c5a5',tan:'#bd9164',grey:'#92908b',gray:'#92908b',red:'#bd4034',pink:'#e997a5',purple:'#8566a9',orange:'#ee7a35',yellow:'#e9c444',green:'#548051',teal:'#3c8e8d',olive:'#778241' };
