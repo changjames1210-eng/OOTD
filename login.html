@@ -12,7 +12,7 @@
   </head>
   <body class="login-page">
     <main class="login-wrap">
-      <a class="brand login-brand" href="index.html">ootd<span>°</span></a>
+      <div class="login-topbar"><a class="brand login-brand" href="index.html">ootd<span>°</span></a><div class="theme-choice" role="group" aria-label="Choose appearance"><button type="button" data-theme-choice="light"><span aria-hidden="true">☀</span> Light</button><button type="button" data-theme-choice="dark"><span aria-hidden="true">☾</span> Dark</button></div></div>
       <section class="login-card" aria-labelledby="loginTitle">
         <div class="eyebrow"><span></span> Welcome to your closet</div>
         <h1 id="loginTitle">Dress like<br />yourself.</h1>
@@ -35,6 +35,7 @@
         <p class="login-note">This demo remembers your closet on this device. A real site would connect this form to a secure account service.</p>
       </section>
     </main>
+    <script src="theme.js"></script>
     <script src="login.js"></script>
   </body>
 </html>
