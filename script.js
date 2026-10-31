@@ -26,12 +26,14 @@ function updateClosetMode(filter) {
   const scene = document.getElementById('closetScene');
   scene.classList.toggle('watch-drawer', filter === 'Watch');
   scene.classList.toggle('hat-rack', filter === 'Hat');
+  scene.classList.toggle('shoes-shelf', filter === 'Shoes');
 }
 function renderCloset() {
-  const shown = activeFilter === 'All' ? closet : closet.filter(i => i.type === activeFilter);
+  const shown = (activeFilter === 'All' ? [...closet] : closet.filter(i => i.type === activeFilter))
+    .sort((a, b) => Number(a.type === 'Shoes') - Number(b.type === 'Shoes'));
   document.getElementById('itemsGrid').innerHTML = shown.length ? shown.map(item => {
     const index = closet.indexOf(item);
-    return `<article class="closet-item" id="closet-item-${index}" data-type="${item.type}"><span class="hanger" aria-hidden="true"></span><button class="remove" aria-label="Remove ${item.name}" data-index="${index}">×</button>${garment(item)}<div class="item-type">${item.type}</div><div class="item-name">${item.name}</div><div class="item-details">${item.color}${item.size ? ' · ' + item.size : ''}</div><button class="pull-item" type="button" aria-expanded="false">Pull out <span aria-hidden="true">↗</span></button></article>`;
+    return `<article class="closet-item" id="closet-item-${index}" data-type="${item.type}" tabindex="0" role="button" aria-label="Pull out ${item.name}" aria-expanded="false"><span class="hanger" aria-hidden="true"></span><button class="remove" aria-label="Remove ${item.name}" data-index="${index}">×</button>${garment(item)}<div class="item-type">${item.type}</div><div class="item-name">${item.name}</div><div class="item-details">${item.color}${item.size ? ' · ' + item.size : ''}</div></article>`;
   }).join('') : '<p class="empty">Nothing here yet — add a piece to get started.</p>';
   document.getElementById('closetCount').textContent = closet.length;
 }
@@ -103,10 +105,9 @@ document.getElementById('itemsGrid').addEventListener('click', event => {
   }
   const card = event.target.closest('.closet-item');
   if (!card) return;
-  const pullButton = card.querySelector('.pull-item');
   const pulled = card.classList.toggle('pulled');
-  pullButton.setAttribute('aria-expanded', String(pulled));
-  pullButton.innerHTML = pulled ? 'Put back <span aria-hidden="true">↙</span>' : 'Pull out <span aria-hidden="true">↗</span>';
+  card.setAttribute('aria-expanded', String(pulled));
+  card.setAttribute('aria-label', `${pulled ? 'Put back' : 'Pull out'} ${card.querySelector('.item-name').textContent}`);
 });
 document.querySelectorAll('.filter').forEach(button => button.addEventListener('click', () => { activeFilter = button.dataset.filter; document.querySelectorAll('.filter').forEach(b => b.classList.toggle('active', b === button)); updateClosetMode(activeFilter); renderCloset(); }));
 document.getElementById('accountName').textContent = account ? `${account.name}'s closet` : 'My closet';
